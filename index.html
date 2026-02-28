@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EarthVerse Explorer — Biosphere & Astrosphere (Earth For Kids)</title>
+
+  <style>
+    /* ======= Space / Earth-from-space vibe background ======= */
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color:#f8fafc;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(14,165,233,.35) 0%, rgba(14,165,233,0) 45%),
+        radial-gradient(circle at 70% 70%, rgba(34,197,94,.20) 0%, rgba(34,197,94,0) 55%),
+        radial-gradient(circle at 50% 110%, rgba(59,130,246,.35) 0%, rgba(59,130,246,0) 60%),
+        linear-gradient(180deg, #020617 0%, #030b1f 55%, #06122d 100%);
+      overflow-x:hidden;
+    }
+
+    /* Stars */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,.7), transparent 60%),
+        radial-gradient(1px 1px at 140px 90px, rgba(255,255,255,.5), transparent 60%),
+        radial-gradient(1px 1px at 280px 200px, rgba(255,255,255,.6), transparent 60%),
+        radial-gradient(2px 2px at 500px 120px, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(1px 1px at 740px 40px, rgba(255,255,255,.6), transparent 60%),
+        radial-gradient(1px 1px at 980px 220px, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(2px 2px at 1100px 160px, rgba(255,255,255,.5), transparent 60%),
+        radial-gradient(1px 1px at 60% 35%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(2px 2px at 35% 80%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(1px 1px at 85% 70%, rgba(255,255,255,.35), transparent 60%);
+      opacity:.9;
+    }
+
+    header{ padding:26px 16px 10px; text-align:center; position:relative; }
+    header h1{ margin:0; font-size:34px; letter-spacing:.4px; }
+    header p{ margin:8px auto 0; opacity:.92; max-width: 1020px; line-height:1.35; }
+
+    main{ max-width: 1180px; margin: 14px auto; padding: 0 16px 52px; position:relative; }
+    .grid{ display:grid; gap:14px; grid-template-columns: 1fr; }
+    @media (min-width: 980px){ .grid{ grid-template-columns: 1.05fr .95fr; } }
+
+    .card{
+      background: rgba(2,6,23,.68);
+      border: 1px solid rgba(148,163,184,.22);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    }
+    .card h2{ margin: 0 0 10px; font-size: 18px; }
+
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+    select, button{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.35);
+      font-size: 14px;
+      background: rgba(15,23,42,.7);
+      color:#f8fafc;
+    }
+    select option{ background:#0b1226; color:#f8fafc; }
+    button{ background:#0ea5e9; border:none; cursor:pointer; font-weight:bold; }
+    button:hover{ opacity:.92; }
+
+    .pill{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(224,242,254,.14);
+      border: 1px solid rgba(14,165,233,.35);
+      color:#e0f2fe;
+      font-size:12px;
+    }
+
+    .muted{ color: rgba(226,232,240,.82); font-size: 13px; margin-top: 8px; line-height:1.35; }
+    .mini{ font-size:12px; opacity:.9; }
+
+    .box{
+      border:1px dashed rgba(148,163,184,.45);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(2,6,23,.45);
+      margin-top: 12px;
+      line-height: 1.55;
+    }
+    .box h3{ margin:0 0 8px; }
+
+    .q{
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,.25);
+      background: rgba(15,23,42,.6);
+    }
+
+    textarea{
+      width:100%;
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.35);
+      background: rgba(2,6,23,.55);
+      color:#f8fafc;
+      resize: vertical;
+      min-height: 110px;
+      font-size: 14px;
+      line-height:1.45;
+    }
+
+    .mc{
+      margin-top: 10px;
+      display:grid;
+      gap:8px;
+    }
+    label.mcopt{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px;
+      border-radius: 12px;
+      border:1px solid rgba(148,163,184,.25);
+      background: rgba(2,6,23,.35);
+      cursor:pointer;
+    }
+    label.mcopt:hover{ background: rgba(2,6,23,.55); }
+
+    /* ======= Matching game cards ======= */
+    #matchBoard{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+    @media (max-width: 520px){
+      #matchBoard{ grid-template-columns: repeat(3, 1fr); }
+    }
+    .matchCard{
+      padding:14px;
+      border-radius:12px;
+      text-align:center;
+      background:#0ea5e9;
+      cursor:pointer;
+      font-size:13px;
+      min-height:82px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+    }
+    .matchHidden{
+      background: rgba(2,6,23,.55);
+      border:1px solid rgba(51,65,85,.9);
+      color: transparent;
+      text-shadow: 0 0 0 rgba(248,250,252,0);
+    }
+    .matchHidden::after{
+      content:"🌍";
+      color:#e2e8f0;
+      text-shadow:none;
+    }
+
+    .score{ font-weight:bold; padding-left: 6px; }
+    footer{ text-align:center; color: rgba(226,232,240,.75); padding: 18px 10px; font-size: 13px; }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🌍 EarthVerse Explorer (Earth For Kids)</h1>
+    <p>
+      Learn Biosphere & Astrosphere with 3 levels, then practice with a quiz (multiple choice + open-ended)
+      and a timed Memory Match game.
+    </p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- ===================== LEFT COLUMN: LEARN ===================== -->
+      <section class="card">
+        <h2>Learn (Choose Topic + Level)</h2>
+
+        <div class="row">
+          <span class="pill">Topic</span>
+          <select id="topicSelect">
+            <option value="">-- Choose a topic --</option>
+            <option value="biosphere">Biosphere</option>
+            <option value="astrosphere">Astrosphere</option>
+          </select>
+
+          <span class="pill">Level</span>
+          <select id="levelSelect">
+            <option value="">-- Choose a level --</option>
+            <option value="1">Level 1: Long Paragraph</option>
+            <option value="2">Level 2: Essay</option>
+            <option value="3">Level 3: Super Detailed</option>
+          </select>
+
+          <button id="showBtn">Show Info</button>
+        </div>
+
+        <div id="infoBox" class="box" aria-live="polite">
+          Pick a topic and a level, then click “Show Info.”
+        </div>
+
+        <p class="muted">
+          Study plan: Read Level 1 → try Quiz → come back for Level 2 → try Memory Match → finish with Level 3.
+        </p>
+      </section>
+
+      <!-- ===================== RIGHT COLUMN: QUIZ + MATCH ===================== -->
+      <section class="card">
+        <h2>Practice</h2>
+
+        <!-- ===== QUIZ ===== -->
+        <div class="box" style="margin-top:0;">
+          <h3 style="margin:0 0 8px;">Quiz (Multiple Choice + Open-Ended)</h3>
+
+          <div class="row">
+            <span class="pill">Quiz Topic</span>
+            <select id="quizTopic">
+              <option value="">-- Choose a quiz topic --</option>
+              <option value="biosphere">Biosphere</option>
+              <option value="astrosphere">Astrosphere</option>
+              <option value="mixed">Mixed</option>
+            </select>
+
+            <span class="pill">Quiz Level</span>
+            <select id="quizLevel">
+              <option value="">-- Choose a level --</option>
+              <option value="1">Level 1 (min 2 sentences)</option>
+              <option value="2">Level 2 (min 3 sentences)</option>
+              <option value="3">Level 3 (min 4 sentences)</option>
+            </select>
+
+            <button id="makeQuizBtn">Generate Quiz</button>
+          </div>
+
+          <div id="quizBox" class="box" aria-live="polite" style="margin-top:12px;">
+            Choose a quiz topic + level and click “Generate Quiz.”
+          </div>
+
+          <div class="row" style="margin-top:10px;">
+            <button id="gradeBtn">Check My Answers</button>
+            <span id="scoreText" class="score"></span>
+          </div>
+
+          <p class="muted">
+            Open-ended grading checks: (1) sentence minimum for your level and (2) key ideas (keywords).
+            <span class="mini">(Helpful checker, not a strict teacher.)</span>
+          </p>
+        </div>
+
+        <!-- ===== MEMORY MATCH GAME ===== -->
+        <div class="box">
+          <h3 style="margin:0 0 8px;">Memory Match (Timed)</h3>
+
+          <div class="row">
+            <span class="pill">Topic</span>
+            <select id="matchTopic">
+              <option value="">-- Choose topic --</option>
+              <option value="biosphere">Biosphere</option>
+              <option value="astrosphere">Astrosphere</option>
+            </select>
+
+            <span class="pill">Level</span>
+            <select id="matchLevel">
+              <option value="">-- Choose level --</option>
+              <option value="1">Level 1 (Easy)</option>
+              <option value="2">Level 2 (Medium)</option>
+              <option value="3">Level 3 (Hard)</option>
+            </select>
+
+            <button id="startMatch">Start Game</button>
+          </div>
+
+          <div id="timerText" class="muted" style="margin-top:10px;">
+            Timer will appear here.
+          </div>
+
+          <div id="matchBoard" aria-live="polite"></div>
+
+          <p class="muted">
+            How to play: flip two cards → if they match, they stay open. Match everything before time runs out.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      EarthVerse Explorer — Levels + Quiz + Matching = better retention.
+    </footer>
+  </main>
+
+  <script>
+    /* =========================
+       LEARNING CONTENT (LONGER)
+       ========================= */
+    const content = {
+      biosphere: {
+        title: "Biosphere",
+        level1:
+`The biosphere is the part of Earth where life exists, which means it includes every living thing—plants, animals, fungi, and microscopic organisms—and all the places where they can survive. You can find the biosphere on land (like forests, deserts, and grasslands), in water (like rivers, lakes, and oceans), and even in the lower atmosphere where birds, insects, and tiny airborne microbes can travel. Life in the biosphere needs the right conditions and resources, such as sunlight for energy, water to support life processes, air for important gases like oxygen and carbon dioxide, and nutrients that come from soil or water. Living things interact inside ecosystems, where organisms depend on each other through food chains and food webs. For example, plants make food using sunlight, animals get energy by eating plants or other animals, and decomposers like bacteria and fungi recycle nutrients by breaking down dead organisms. Because everything is connected, changes like pollution, cutting down trees, or long droughts can affect many organisms, not just one species, since the biosphere works like a big system.`,
+        level2:
+`The biosphere is Earth’s “zone of life,” meaning it includes all living organisms and the environments that can support life. It covers an incredible range of habitats, including tropical rainforests, grasslands, deserts, wetlands, coral reefs, deep oceans, rivers, lakes, and high mountain regions where life can still survive. The biosphere is organized into ecosystems—communities of living things interacting with each other and with nonliving factors such as sunlight, temperature, wind, rainfall, water availability, soil type, and nutrient levels. In most ecosystems, energy begins with the Sun. Producers such as plants and algae capture sunlight during photosynthesis and store that energy as sugar. Consumers, including herbivores and carnivores, obtain energy by eating plants or other animals. Decomposers, like fungi and bacteria, break down dead organisms and waste, returning nutrients to the soil and water so producers can grow again. This creates nutrient cycles that keep matter moving through ecosystems, while energy flows through food webs and is gradually lost as heat. The biosphere also constantly interacts with Earth’s other spheres: the atmosphere provides gases needed for respiration and photosynthesis, the hydrosphere provides water and aquatic habitats, and the geosphere provides landforms and soils that hold nutrients. When one part of the biosphere changes—such as through habitat destruction, pollution, invasive species, or climate shifts—those changes can ripple through ecosystems by disrupting food webs and lowering biodiversity, making ecosystems less stable.`,
+        level3:
+`The biosphere is the living layer of Earth and includes all life forms (plants, animals, fungi, and microorganisms) along with the environments that allow those organisms to survive. It spans across land, water, and the lower atmosphere, and it includes both “normal” habitats and extreme ones where specialized organisms still manage to live. The biosphere is not simply a location; it is a system built on interactions between living communities and nonliving conditions. Ecosystems form when organisms interact with abiotic factors like sunlight intensity, temperature ranges, precipitation patterns, soil chemistry, nutrient availability, and water access. Energy enters most ecosystems primarily through sunlight. Producers convert solar energy into chemical energy via photosynthesis, creating the base of food webs. Consumers move that energy through the web by eating producers or other consumers. Decomposers recycle nutrients by breaking down dead organisms and waste, returning essential elements like nitrogen and phosphorus to soil and water. This recycling supports productivity and helps ecosystems continue over long periods. The biosphere is deeply connected to the atmosphere (gas exchange and climate), hydrosphere (water cycle and aquatic environments), and geosphere (rocks, soils, landforms, and nutrient storage). Human activities can alter these connections: deforestation can fragment habitats and change local climates, pollution can reduce water and soil quality, greenhouse gas emissions can shift temperature and rainfall patterns, and invasive species can disrupt food webs. Protecting the biosphere means conserving habitats, reducing pollution, using resources responsibly, and understanding that changes in one ecosystem can affect many others, because a stable biosphere supports clean air, clean water, biodiversity, and the natural systems humans rely on.`
+      },
+
+      astrosphere: {
+        title: "Astrosphere",
+        level1:
+`The astrosphere is the part of space beyond Earth that includes objects like the Moon, the Sun, planets, stars, and smaller bodies such as asteroids and comets. Even though it is “out in space,” the astrosphere affects life on Earth every day. Earth rotates on its axis to create day and night, and Earth revolves around the Sun to create our year. Because Earth’s axis is tilted, sunlight hits different parts of Earth more directly at different times, which causes seasons and changes in temperature. The Moon’s gravity pulls on Earth’s oceans and helps create tides that rise and fall along coastlines. The Sun is the most important object for Earth because it provides light and heat energy that powers weather, climate, and photosynthesis, which supports most life. Learning about the astrosphere helps explain patterns in the sky and how Earth fits into a bigger space system.`,
+        level2:
+`The astrosphere refers to the space environment around Earth and the objects found in it, from nearby bodies like the Moon to distant stars and galaxies. Earth’s daily and yearly patterns are shaped by how our planet moves in space. Earth rotates on its axis about once every 24 hours, creating day and night and changing the angle and strength of sunlight throughout the day. Earth revolves around the Sun in about 365 days, which creates a year. Earth’s axis is tilted, so during Earth’s orbit, different hemispheres receive different angles and amounts of sunlight; this causes seasons and influences climate patterns. The Moon’s gravity creates tides by pulling on Earth’s oceans, and tides can affect coastal environments and the organisms that live near shorelines. The Sun is Earth’s main energy source and drives the water cycle, shapes wind patterns and weather, and provides the energy needed for photosynthesis. Studying the astrosphere helps scientists understand Earth’s place in the solar system, predict events like eclipses, and learn how space conditions can affect Earth and human technology.`,
+        level3:
+`The astrosphere is the region of space surrounding Earth that includes everything outside Earth’s atmosphere—nearby objects like the Moon and Sun, other planets in the solar system, and faraway bodies such as asteroids, comets, distant stars, and galaxies. It matters because Earth’s systems are influenced by motion, gravity, and solar energy. Earth rotates about once every 24 hours, producing day and night and changing sunlight angles across the planet throughout the day. Earth also revolves around the Sun roughly once a year, and the tilt of Earth’s axis causes uneven sunlight distribution across hemispheres over time, producing seasons and influencing long-term climate patterns. The Moon’s gravitational pull creates tides, which can shape coastlines, influence ocean movement, and affect coastal ecosystems. The Sun provides the energy that powers Earth’s climate system and water cycle, and it enables photosynthesis, which supports most food webs in the biosphere. The astrosphere also includes “space weather,” such as solar flares and solar wind (streams of charged particles). These events can interact with Earth’s magnetic field and sometimes disrupt satellites, GPS signals, radio communication, and even power systems. Understanding the astrosphere helps scientists explain Earth’s cycles, protect modern technology that depends on satellites, and compare Earth to other planets to understand what conditions allow life to exist.`
+      }
+    };
+
+    const byId = (id) => document.getElementById(id);
+
+    // Show info
+    byId("showBtn").addEventListener("click", () => {
+      const topic = byId("topicSelect").value;
+      const level = byId("levelSelect").value;
+      const box = byId("infoBox");
+
+      if (!topic || !level){
+        box.textContent = "Pick BOTH a topic and a level first.";
+        return;
+      }
+
+      const t = content[topic];
+      const text = level === "1" ? t.level1 : level === "2" ? t.level2 : t.level3;
+
+      box.innerHTML = `
+        <h3>${t.title} — Level ${level}</h3>
+        <p style="margin:0; white-space:pre-wrap;">${text}</p>
+        <p class="muted" style="margin:12px 0 0;">
+          Quick plan: define it → give examples → explain connections → explain why it matters.
+        </p>
+      `;
+    });
+
+    /* =========================
+       QUIZ: MC + OPEN ENDED
+       ========================= */
+    function sentenceCount(text){
+      const parts = text.replace(/\s+/g, " ").trim().split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
+      return parts.length;
+    }
+
+    function shuffle(arr){
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    const mcBank = {
+      biosphere: [
+        { q:"Which choice best describes the biosphere?", choices:[
+            "The solid rock layer of Earth",
+            "The part of Earth where living things exist",
+            "Only the oceans and rivers",
+            "Only outer space"
+          ], answerIndex:1
+        },
+        { q:"Which organisms are producers in most ecosystems?", choices:[
+            "Bacteria and fungi",
+            "Lions and wolves",
+            "Plants and algae",
+            "Rocks and minerals"
+          ], answerIndex:2
+        },
+        { q:"What do decomposers mostly do?", choices:[
+            "Make sunlight",
+            "Break down dead matter and recycle nutrients",
+            "Create tides",
+            "Cause seasons"
+          ], answerIndex:1
+        },
+        { q:"Which nonliving factor is MOST important for photosynthesis?", choices:[
+            "Sunlight",
+            "Sand",
+            "Moonlight",
+            "Gravity"
+          ], answerIndex:0
+        },
+        { q:"Which is an example of a biosphere habitat?", choices:[
+            "A coral reef",
+            "A crater on the Moon",
+            "A distant galaxy",
+            "A black hole"
+          ], answerIndex:0
+        },
+        { q:"A food web shows…", choices:[
+            "How stars move",
+            "How energy moves between organisms in an ecosystem",
+            "How rocks form",
+            "How tides rise and fall"
+          ], answerIndex:1
+        },
+        { q:"Biodiversity means…", choices:[
+            "Only one species in an area",
+            "The variety of life in an area",
+            "Only animals living in an area",
+            "Only plants living in an area"
+          ], answerIndex:1
+        }
+      ],
+      astrosphere: [
+        { q:"Which object provides most energy for Earth’s climate and life?", choices:[
+            "The Moon",
+            "The Sun",
+            "Mars",
+            "A comet"
+          ], answerIndex:1
+        },
+        { q:"What causes day and night?", choices:[
+            "Earth’s rotation",
+            "Earth’s revolution",
+            "The Moon’s gravity",
+            "Clouds moving"
+          ], answerIndex:0
+        },
+        { q:"What causes seasons?", choices:[
+            "Earth’s tilt and orbit around the Sun",
+            "The Moon blocking the Sun",
+            "Ocean waves",
+            "Mountains growing"
+          ], answerIndex:0
+        },
+        { q:"What is the main reason we have tides?", choices:[
+            "Wind",
+            "Earth’s tilt",
+            "The Moon’s gravity (and the Sun’s, a little)",
+            "Volcanoes"
+          ], answerIndex:2
+        },
+        { q:"Which is an example of space weather?", choices:[
+            "A hurricane",
+            "A solar flare",
+            "An earthquake",
+            "A tornado"
+          ], answerIndex:1
+        },
+        { q:"Satellites can be affected by…", choices:[
+            "Solar storms and charged particles",
+            "Only rain",
+            "Only mountains",
+            "Only soil erosion"
+          ], answerIndex:0
+        },
+        { q:"Earth’s revolution around the Sun takes about…", choices:[
+            "24 hours",
+            "7 days",
+            "365 days",
+            "10 years"
+          ], answerIndex:2
+        }
+      ]
+    };
+
+    const openBank = {
+      biosphere: [
+        { prompt:"Explain what the biosphere is and name at least TWO places where it exists. Then explain why the biosphere needs sunlight, water, and air to support life.",
+          keywords:["life","living","organisms","ecosystem","sun","sunlight","water","air","forest","ocean","soil","river","plants","animals"]
+        },
+        { prompt:"Describe how energy moves through the biosphere. Include producers, consumers, and decomposers, and explain why decomposers are important.",
+          keywords:["producer","photosynthesis","plant","algae","consumer","herbivore","carnivore","decomposer","bacteria","fungi","nutrients","food web","food chain","energy"]
+        },
+        { prompt:"Pick ONE ecosystem (forest, ocean, desert, grassland). Explain a change (pollution, drought, fewer trees) and how it could affect multiple organisms through a food web.",
+          keywords:["ecosystem","pollution","drought","habitat","food web","species","biodiversity","plants","animals","water","air","soil"]
+        },
+        { prompt:"Explain how the biosphere connects to the atmosphere and hydrosphere. Give one example of a connection to each.",
+          keywords:["atmosphere","oxygen","carbon dioxide","air","hydrosphere","water","ocean","river","rain","photosynthesis","respiration"]
+        },
+        { prompt:"Explain what biodiversity means and why it helps ecosystems stay stable. Include one example of what could happen if a key species is removed.",
+          keywords:["biodiversity","species","ecosystem","balance","stability","predator","prey","food web"]
+        },
+        { prompt:"Describe TWO ways humans can harm the biosphere and ONE way humans can help protect it. Use examples.",
+          keywords:["deforestation","pollution","climate","greenhouse","habitat","conservation","recycle","protect","renewable","clean","wildlife"]
+        },
+        { prompt:"Explain the difference between a food chain and a food web, and why a food web is usually more realistic in nature.",
+          keywords:["food chain","food web","energy","producers","consumers","ecosystem","connected"]
+        }
+      ],
+      astrosphere: [
+        { prompt:"Explain what the astrosphere is and name at least THREE objects found in it. Then explain why the Sun is the most important object for life on Earth.",
+          keywords:["space","sun","moon","planets","stars","asteroids","comets","energy","light","heat","photosynthesis","climate","weather"]
+        },
+        { prompt:"Explain the difference between rotation and revolution and how each one affects Earth (day/night and year).",
+          keywords:["rotation","rotate","spins","axis","day","night","revolution","orbit","year","sun"]
+        },
+        { prompt:"Explain what causes seasons and why Earth’s tilt matters. Include how sunlight hits different places during the year.",
+          keywords:["tilt","axis","seasons","sunlight","angle","hemisphere","orbit","direct"]
+        },
+        { prompt:"Explain how the Moon causes tides and why tides matter for life near the ocean. Include gravity in your explanation.",
+          keywords:["moon","gravity","tides","ocean","coast","pull","rise","fall","ecosystem"]
+        },
+        { prompt:"Describe what space weather is and give one example of how it can affect technology on Earth (satellites, GPS, radio, or power).",
+          keywords:["space weather","solar","flare","solar wind","magnetic","field","satellite","gps","radio","power grid","communication"]
+        },
+        { prompt:"Explain why scientists study the astrosphere. Include at least two reasons connected to Earth systems or human technology.",
+          keywords:["scientists","study","earth","cycles","seasons","tides","satellites","technology","predict","protect"]
+        },
+        { prompt:"Explain how Earth’s orbit and tilt work together. Why doesn’t distance from the Sun alone explain seasons?",
+          keywords:["orbit","tilt","axis","seasons","sunlight","angle","hemisphere","distance"]
+        }
+      ]
+    };
+
+    function minSentencesForLevel(level){
+      if (level === "1") return 2;
+      if (level === "2") return 3;
+      return 4;
+    }
+    function openCountForLevel(level){
+      if (level === "1") return 5;
+      if (level === "2") return 6;
+      return 7;
+    }
+    function mcCountForLevel(level){
+      if (level === "1") return 5;
+      if (level === "2") return 6;
+      return 7;
+    }
+
+    let currentQuiz = { mc: [], open: [], level: "1" };
+
+    function buildQuiz(topic, level){
+      const needMC = mcCountForLevel(level);
+      const needOpen = openCountForLevel(level);
+
+      let mc = [];
+      let open = [];
+
+      if (topic === "mixed"){
+        mc = shuffle([...mcBank.biosphere, ...mcBank.astrosphere]).slice(0, needMC);
+        open = shuffle([...openBank.biosphere, ...openBank.astrosphere]).slice(0, needOpen);
+      } else {
+        const mcBase = shuffle(mcBank[topic]);
+        const openBase = shuffle(openBank[topic]);
+
+        while (mc.length < needMC) mc.push(mcBase[mc.length % mcBase.length]);
+        while (open.length < needOpen) open.push(openBase[open.length % openBase.length]);
+      }
+
+      return { mc, open, level };
+    }
+
+    function renderQuiz(quiz){
+      const minS = minSentencesForLevel(quiz.level);
+
+      const mcHtml = `
+        <h3 style="margin:0 0 10px;">Multiple Choice</h3>
+        ${quiz.mc.map((item, i) => `
+          <div class="q">
+            <div><b>MC${i+1}.</b> ${item.q}</div>
+            <div class="mc" id="mc_${i}">
+              ${item.choices.map((c, idx) => `
+                <label class="mcopt">
+                  <input type="radio" name="mc_${i}" value="${idx}" />
+                  <span>${c}</span>
+                </label>
+              `).join("")}
+            </div>
+            <div class="mini muted" id="mcHint_${i}" style="margin-top:8px;"></div>
+          </div>
+        `).join("")}
+      `;
+
+      const openHtml = `
+        <h3 style="margin:16px 0 10px;">Open-Ended (Level ${quiz.level})</h3>
+        <p class="muted" style="margin:0 0 10px;">
+          Rule: write <b>at least ${minS} sentences</b> for each answer.
+        </p>
+        ${quiz.open.map((item, i) => `
+          <div class="q">
+            <div><b>OE${i+1}.</b> ${item.prompt}</div>
+            <textarea id="oe_${i}" placeholder="Write your answer here... (minimum ${minS} sentences)"></textarea>
+            <div class="mini muted" id="oeHint_${i}" style="margin-top:8px;">
+              Tip key ideas: <b>${item.keywords.slice(0,6).join(", ")}</b>...
+            </div>
+          </div>
+        `).join("")}
+      `;
+
+      byId("quizBox").innerHTML = mcHtml + openHtml;
+      byId("scoreText").textContent = "";
+    }
+
+    byId("makeQuizBtn").addEventListener("click", () => {
+      const topic = byId("quizTopic").value;
+      const level = byId("quizLevel").value;
+
+      if (!topic || !level){
+        byId("quizBox").textContent = "Choose BOTH a quiz topic and a level first.";
+        return;
+      }
+
+      currentQuiz = buildQuiz(topic, level);
+      renderQuiz(currentQuiz);
+    });
+
+    byId("gradeBtn").addEventListener("click", () => {
+      if (!currentQuiz.mc.length && !currentQuiz.open.length){
+        byId("scoreText").textContent = "Generate a quiz first.";
+        return;
+      }
+
+      const minS = minSentencesForLevel(currentQuiz.level);
+
+      // MC scoring
+      let mcCorrect = 0;
+      currentQuiz.mc.forEach((item, i) => {
+        const radios = document.querySelectorAll(`input[name="mc_${i}"]`);
+        let chosen = null;
+        radios.forEach(r => { if (r.checked) chosen = parseInt(r.value, 10); });
+
+        const hint = byId(`mcHint_${i}`);
+        if (chosen === null){
+          hint.textContent = "No answer selected yet.";
+          return;
+        }
+        if (chosen === item.answerIndex){
+          mcCorrect++;
+          hint.textContent = "✅ Correct";
+        } else {
+          hint.textContent = `❌ Not quite. Correct answer: ${item.choices[item.answerIndex]}`;
+        }
+      });
+
+      // Open-ended scoring
+      let sentencePass = 0;
+      let keywordPass = 0;
+
+      currentQuiz.open.forEach((item, i) => {
+        const text = (byId(`oe_${i}`).value || "").trim();
+        const sc = sentenceCount(text);
+        const meetsSentences = sc >= minS;
+
+        const lower = text.toLowerCase();
+        let hits = 0;
+        item.keywords.forEach(k => { if (lower.includes(k.toLowerCase())) hits++; });
+        const meetsKeywords = hits >= 2;
+
+        if (meetsSentences) sentencePass++;
+        if (meetsKeywords) keywordPass++;
+
+        byId(`oeHint_${i}`).innerHTML = `
+          <span class="mini">
+            Sentences: <b>${sc}</b> (need ${minS}) • Keyword hits: <b>${hits}</b> (need 2)
+            ${meetsSentences && meetsKeywords ? "✅" : "⚠️"}
+          </span>
+        `;
+      });
+
+      const mcTotal = currentQuiz.mc.length;
+      const oeTotal = currentQuiz.open.length;
+
+      byId("scoreText").textContent =
+        `MC: ${mcCorrect}/${mcTotal}  |  Open-ended sentence pass: ${sentencePass}/${oeTotal}  |  Open-ended key-idea pass: ${keywordPass}/${oeTotal}`;
+    });
+
+    /* =========================
+       MEMORY MATCH GAME (TIMED)
+       ========================= */
+    // Terms pulled from the paragraph ideas (biosphere + astrosphere)
+    const matchData = {
+      biosphere: [
+        ["Biosphere", "All living things + where they live"],
+        ["Ecosystem", "Living + nonliving working together"],
+        ["Producers", "Plants/algae that make food"],
+        ["Photosynthesis", "Plants use sunlight to make sugar"],
+        ["Consumers", "Animals that eat other organisms"],
+        ["Decomposers", "Recycle nutrients by breaking things down"],
+        ["Food Web", "Many connected food chains"],
+        ["Biodiversity", "Variety of life in an area"]
+      ],
+      astrosphere: [
+        ["Astrosphere", "Space beyond Earth with objects"],
+        ["Rotation", "Earth spinning = day/night"],
+        ["Revolution", "Earth orbiting Sun = year"],
+        ["Tilt", "Tilt + orbit = seasons"],
+        ["Tides", "Moon’s gravity pulls oceans"],
+        ["Solar Flare", "Burst of energy from the Sun"],
+        ["Solar Wind", "Charged particles from Sun"],
+        ["Satellite", "Space tech that can be disrupted"]
+      ]
+    };
+
+    let firstCard = null;
+    let lock = false;
+    let matches = 0;
+    let timer = null;
+    let timeLeft = 0;
+    let matchPairsCount = 0;
+
+    function startTimer(level){
+      clearInterval(timer);
+
+      // Time limits based on level (harder level = less time)
+      if (level === "1") timeLeft = 90;
+      if (level === "2") timeLeft = 70;
+      if (level === "3") timeLeft = 50;
+
+      byId("timerText").textContent = `⏱️ Time Left: ${timeLeft}s`;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        byId("timerText").textContent = `⏱️ Time Left: ${timeLeft}s`;
+
+        if (timeLeft <= 0){
+          clearInterval(timer);
+          byId("timerText").textContent = "⏰ Time’s up! Try again and focus on the key words.";
+          byId("matchBoard").innerHTML = "";
+        }
+      }, 1000);
+    }
+
+    function startMatchGame(){
+      const topic = byId("matchTopic").value;
+      const level = byId("matchLevel").value;
+
+      if (!topic || !level){
+        byId("timerText").textContent = "Pick BOTH a topic and a level first.";
+        return;
+      }
+
+      const pairs = matchData[topic];
+      matchPairsCount = pairs.length;
+
+      // Make two cards per pair: term card + definition card share same matchId
+      const cards = [];
+      pairs.forEach((pair, idx) => {
+        cards.push({ text: pair[0], matchId: idx });
+        cards.push({ text: pair[1], matchId: idx });
+      });
+
+      const shuffled = shuffle(cards);
+
+      // Reset state
+      matches = 0;
+      firstCard = null;
+      lock = false;
+
+      // Render board
+      const board = byId("matchBoard");
+      board.innerHTML = "";
+
+      shuffled.forEach((card) => {
+        const div = document.createElement("div");
+        div.className = "matchCard matchHidden";
+        div.dataset.text = card.text;
+        div.dataset.id = String(card.matchId);
+        div.textContent = ""; // hidden
+
+        div.addEventListener("click", () => {
+          // If time is up, board might be cleared
+          if (!board.contains(div)) return;
+
+          if (lock) return;
+          if (!div.classList.contains("matchHidden")) return; // already open/matched
+
+          // flip
+          div.textContent = card.text;
+          div.classList.remove("matchHidden");
+
+          if (!firstCard){
+            firstCard = div;
+            return;
+          }
+
+          // second card
+          if (firstCard.dataset.id === div.dataset.id){
+            // match
+            matches++;
+            firstCard = null;
+
+            if (matches === matchPairsCount){
+              clearInterval(timer);
+              byId("timerText").textContent = "🎉 You matched everything! Great retention!";
+            }
+          } else {
+            // not a match
+            lock = true;
+            setTimeout(() => {
+              div.textContent = "";
+              firstCard.textContent = "";
+              div.classList.add("matchHidden");
+              firstCard.classList.add("matchHidden");
+              firstCard = null;
+              lock = false;
+            }, 900);
+          }
+        });
+
+        board.appendChild(div);
+      });
+
+      startTimer(level);
+    }
+
+    byId("startMatch").addEventListener("click", startMatchGame);
+  </script>
+</body>
+</html>
